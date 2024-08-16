@@ -1,0 +1,69 @@
+//// ------------------------------------------------------
+//// THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+//// ------------------------------------------------------
+
+Table users {
+  id Int [pk, increment]
+  email String [unique, not null]
+  orders orders [not null]
+}
+
+Table products {
+  id Int [pk, increment]
+  name String [not null]
+  description String [not null]
+  price Float [not null]
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [not null]
+  categoryId Int [not null]
+  category categories [not null]
+  tags tags [not null]
+  orders orders [not null]
+}
+
+Table categories {
+  id Int [pk, increment]
+  name String [not null]
+  description String [not null]
+  products products [not null]
+}
+
+Table tags {
+  id Int [pk, increment]
+  name String [not null]
+  products products [not null]
+}
+
+Table payments {
+  id Int [pk, increment]
+  amount Float [not null]
+  date DateTime [default: `now()`, not null]
+  orderId Int [unique, not null]
+  order orders [not null]
+}
+
+Table orders {
+  id Int [pk, increment]
+  date DateTime [default: `now()`, not null]
+  total Float [not null]
+  userId Int [not null]
+  User users [not null]
+  products products [not null]
+  payment payments
+}
+
+Table ProductTags {
+  tagsId Int [ref: > tags.id]
+  productsId Int [ref: > products.id]
+}
+
+Table OrderProducts {
+  ordersId Int [ref: > orders.id]
+  productsId Int [ref: > products.id]
+}
+
+Ref: products.categoryId > categories.id
+
+Ref: payments.orderId - orders.id
+
+Ref: orders.userId > users.id

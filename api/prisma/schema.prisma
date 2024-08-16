@@ -1,0 +1,78 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+generator dbml {
+  provider = "prisma-dbml-generator"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// -------------------------------------------------------------------------------------------------
+// -------------------------------------------------------------------------------------------------
+
+
+model User {
+  id        Int       @id @default(autoincrement())
+  email     String    @unique
+  orders    Order[]   // One-to-Many relation with Order
+
+  @@map("users")
+}
+
+model Product {
+  id          Int       @id @default(autoincrement())
+  name        String
+  description String
+  price       Float
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  categoryId  Int
+  category    Category  @relation(fields: [categoryId], references: [id]) // Many-to-One relation with Category
+  tags        Tag[]     @relation("ProductTags")                          // Many-to-Many relation with Tag
+  orders      Order[]   @relation("OrderProducts")                        // Many-to-Many relation with Order
+
+  @@map("products")
+}
+
+model Category {
+  id          Int       @id @default(autoincrement())
+  name        String
+  description String
+  products    Product[] // One-to-Many relation with Product
+
+  @@map("categories")
+}
+
+model Tag {
+  id       Int       @id @default(autoincrement())
+  name     String
+  products Product[] @relation("ProductTags") // Many-to-Many relation with Product
+
+  @@map("tags")
+}
+
+model Payment {
+  id        Int     @id @default(autoincrement())
+  amount    Float
+  date      DateTime @default(now())
+  orderId   Int     @unique
+  order     Order   @relation(fields: [orderId], references: [id]) // One-to-One relation with Order
+
+  @@map("payments")
+}
+
+model Order {
+  id        Int       @id @default(autoincrement())
+  date      DateTime  @default(now())
+  total     Float
+  userId    Int
+  User      User      @relation(fields: [userId], references: [id]) // Many-to-One relation with User
+  products  Product[] @relation("OrderProducts")                    // Many-to-Many relation with Product
+  payment   Payment?  // One-to-One relation with Payment
+
+  @@map("orders")
+}
